@@ -127,11 +127,26 @@ export default class Game extends Vue {
 
   setInjuryState(result: number): void {
     // @todo set injury
+    // 1 = dead
+    // 2 = mortal injury (next roll !== double = dead)
+    // 3 = severed leg (all combatRolls -1, second time = dead)
+    // 4 = severed arm (all double combatRolls -1 except double 6-s, second time = dead)
+    // 5 = serious concussion (next combatRoll -1)
+    // 6 = fearsome scars (next combatRoll +1)
+    this.$store.commit("addInjury", result);
     this.$store.commit("setInjured", false);
   }
 
   setBlessedState(result: number): void {
     // @todo set blessing
+    // Second time = spawn / dead
+    // 1 = random mutation (no benefits)
+    // 2 = quicksilver reflexes (combatRoll double = dead => survived)
+    // 3 = regeneration (all injured => survived)
+    // 4 = third eye (re-roll a single 1-result die in combatRolls)
+    // 5 = weapon limb (all combatRolls +1)
+    // 6 = one boon too many? (roll blessing twice, ignore 6-s)
+    this.$store.commit("addBlessing", result);
     this.$store.commit("setBlessed", false);
   }
 }

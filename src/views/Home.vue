@@ -1,7 +1,9 @@
 <template>
-  <div class="home">
-    <Game />
-  </div>
+  <section class="section section--home">
+    <div class="container">
+      <Game />
+    </div>
+  </section>
 </template>
 
 <script>

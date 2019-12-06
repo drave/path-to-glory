@@ -18,21 +18,33 @@ export default new Vuex.Store({
     },
     setBlessed(state: GameState, blessed: boolean) {
       state.Blessed = blessed;
+    },
+    addBlessing(state: GameState, blessing: number) {
+      state.Blessings.push(blessing);
+    },
+    addInjury(state: GameState, injury: number) {
+      state.Injuries.push(injury);
     }
   },
   actions: {},
   getters: {
-    started(state: GameState) {
+    started(state: GameState): boolean {
       return state.Started;
     },
-    level(state: GameState) {
+    level(state: GameState): number {
       return state.Level;
     },
-    injured(state: GameState) {
+    injured(state: GameState): boolean {
       return state.Injured;
     },
-    blessed(state: GameState) {
+    blessed(state: GameState): boolean {
       return state.Blessed;
+    },
+    blessings(state: GameState): Array<number> {
+      return state.Blessings;
+    },
+    injuries(state: GameState): Array<number> {
+      return state.Injuries;
     }
   },
   modules: {}
