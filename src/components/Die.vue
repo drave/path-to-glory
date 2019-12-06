@@ -22,7 +22,7 @@ export default class Die extends Vue {
 .die {
   border: 1px solid black;
   display: inline-block;
-  padding: 15px 20px;  
+  padding: 15px 20px;
 
   & + .die {
     margin-left: 20px;

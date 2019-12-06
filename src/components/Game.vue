@@ -4,50 +4,72 @@
       <button @click="startGame">Start game</button>
     </template>
     <template v-else>
-      <combat-dice class="combat-dice" v-on:roll="getNewState"></combat-dice>
+      <injured v-if="injured" class="injured-dice" v-on:roll="setInjuryState" />
+      <blessed
+        v-if="blessed"
+        class="blessed-dice"
+        v-on:roll="setBlessedState"
+      />
+      <combat-dice
+        v-if="!injured && !blessed"
+        class="combat-dice"
+        v-on:roll="setNewState"
+      />
     </template>
     <div>Result: {{ diceRoll }}</div>
     <div>msg: {{ message }}</div>
-    <div>state: {{ currentState }} ({{ state }})</div>
+    <div>state: {{ currentLevel }} ({{ level }})</div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
+import Blessed from "./Blessed.vue";
 import CombatDice from "./CombatDice.vue";
+import Injured from "./Injured.vue";
+import { State, Action, Getter } from "vuex-class";
+import store from "@/store";
 
-@Component({ components: { CombatDice } })
+@Component({ components: { Blessed, CombatDice, Injured } })
 export default class Game extends Vue {
-  private started: boolean = false;
-  private injured: boolean = false;
-  private blessed: boolean = false;
+  get started(): boolean {
+    return this.$store.getters["started"];
+  }
+  get level(): number {
+    return this.$store.getters["level"];
+  }
+  get injured(): boolean {
+    return this.$store.getters["injured"];
+  }
+  get blessed(): boolean {
+    return this.$store.getters["blessed"];
+  }
   private diceRoll: number | null = null;
-  private state: number = 0;
   private message: string = "";
 
   // Computed properties
   get fail(): number {
-    return this.state + 3;
+    return this.level + 3;
   }
 
   get injury(): number {
-    return this.state + 4;
+    return this.level + 4;
   }
 
   get survival(): number {
-    return this.state + 5;
+    return this.level + 5;
   }
 
   get blessing(): number {
-    return this.state + 7;
+    return this.level + 7;
   }
 
   get rankup(): number {
-    return this.state + 8;
+    return this.level + 8;
   }
 
-  get currentState(): string {
-    return ["Marauder", "Warrior", "Knight", "Varanguard", "Lord"][this.state];
+  get currentLevel(): string {
+    return ["Marauder", "Warrior", "Knight", "Varanguard", "Lord"][this.level];
   }
 
   // methods
@@ -55,17 +77,17 @@ export default class Game extends Vue {
     this.reset();
     this.diceRoll = null;
     this.message = "";
-    this.started = true;
+    store.commit("setStarted", true);
   }
 
   reset(): void {
-    // this.started = false;
-    this.injured = false;
-    this.blessed = false;
-    this.state = 0;
+    // store.commit("setStarted", false);
+    store.commit("setInjured", false);
+    store.commit("setBlessed", false);
+    store.commit("setLevel", 0);
   }
 
-  getNewState(result: number): void {
+  setNewState(result: number): void {
     this.diceRoll = result;
 
     if (this.diceRoll <= this.fail) {
@@ -76,19 +98,19 @@ export default class Game extends Vue {
 
     if (this.diceRoll === this.injury) {
       this.message = "Injured in battle";
-      this.injured = true;
+      store.commit("setInjured", true);
       return;
     }
 
     if (this.diceRoll >= this.rankup) {
-      this.state++;
+      store.commit("setLevel", this.level + 1);
       this.message = "Glory is yours!";
       return;
     }
 
     if (this.diceRoll === this.blessing) {
       this.message = "Blessed by the gods";
-      this.blessed = true;
+      store.commit("setBlessed", true);
       return;
     }
 
@@ -101,6 +123,16 @@ export default class Game extends Vue {
     // eslint-disable-next-line no-console
     console.log(this.survival);
     return;
+  }
+
+  setInjuryState(result: number): void {
+    // @todo set injury
+    this.$store.commit("setInjured", false);
+  }
+
+  setBlessedState(result: number): void {
+    // @todo set blessing
+    this.$store.commit("setBlessed", false);
   }
 }
 </script>
